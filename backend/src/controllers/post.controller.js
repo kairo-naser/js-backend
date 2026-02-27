@@ -54,7 +54,7 @@ export async function updatePost(req, res){
         })
          }
 
-        const post = Post.findByIdAndUpdate(req.params.id, req.body,{new:true})
+        const post = await Post.findByIdAndUpdate(req.params.id, req.body,{new:true})
          if(!post){
             return res.status(404).json({message:"post not found"})
          }
@@ -71,11 +71,12 @@ export async function updatePost(req, res){
 
 export async function deletePost(req, res){
     try{
-      const post = Post.findByIdAndDelete(req.params.id)
+      // make sure to await the deletion so we get the result document
+      const post = await Post.findByIdAndDelete(req.params.id)
       if(!post) return res.status(404).json({message:"The post not found"})
       res.status(200).json({
       message:"The Post Deleted",
-      Post
+      post
 })
     }
     catch(error){

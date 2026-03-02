@@ -1,5 +1,4 @@
- import {Post} from  "../models/post.model.js";
-
+import { deletePostService, getAllPostService, postCreateService,  updatePostService } from "../services/post.services.js"
 
 export async function createPost (req, res){
 try{
@@ -8,11 +7,7 @@ try{
     message:"name and age are required"
    })
 
-   const post = await Post.create({
-       name,
-       description,
-       age
-   })
+   const post = await postCreateService(name, description, age )
    res.status(200).json({
     message:"Successfully Posted ",
     post:{
@@ -35,7 +30,7 @@ res.status(400).json({
 
 export async function getPosts(req, res){
     try{
-     const post = await Post.find()
+     const post = await getAllPostService()
      res.status(200).json(post)
     }
     catch(error)
@@ -54,7 +49,7 @@ export async function updatePost(req, res){
         })
          }
 
-        const post = await Post.findByIdAndUpdate(req.params.id, req.body,{new:true})
+        const post = await updatePostService(req.params.id, req.body)
          if(!post){
             return res.status(404).json({message:"post not found"})
          }
@@ -72,7 +67,7 @@ export async function updatePost(req, res){
 export async function deletePost(req, res){
     try{
       // make sure to await the deletion so we get the result document
-      const post = await Post.findByIdAndDelete(req.params.id)
+      const post = await deletePostService(req.params.id)
       if(!post) return res.status(404).json({message:"The post not found"})
       res.status(200).json({
       message:"The Post Deleted",

@@ -1,6 +1,7 @@
-import { User } from "../models/user.model.js";
+import { loginUserService, logoutUserService, registerUserService } from "../services/user.service.js";
 
-const registerUser = async (req, res)=>{
+
+export const registerUser = async (req, res)=>{
     try{
         // destructure the request body
 const { username, email, password} = req.body;
@@ -10,18 +11,17 @@ const { username, email, password} = req.body;
     return res.status(400).json({message:"All fields are required"})
  }
 
-//  check if user already exists
-  const existing = await User.findOne({email: email.toLowerCase()})
-  if(existing){
-    return res.status(400).json({message:"User already exists"})
-  }
+  
 
 //   create user
-  const user = await User.create({
+  const user = await registerUserService(
     username,
-    email:email.toLowerCase(),
+    email.toLowerCase(),
     password, 
-  })
+  )
+  if (!user) {
+      return res.status(400).json({ message: "Username or email already exists" });
+    }
 // status code in here
   res.status(201).json({message:"User registered successfully", user})
     }
@@ -33,11 +33,11 @@ const { username, email, password} = req.body;
     }
 
 }
-const loginUser = async (req, res)=>{
+export const loginUser = async (req, res)=>{
     try{
         // destructure the request body
 const { email, password} = req.body;
-const user = await User.findOne({email: email.toLowerCase()})
+const user = await loginUserService(email)
 if(!user) {
     return res.status(400).json({message:"User is not found"})
 }
@@ -58,12 +58,10 @@ res.status(200).json({message:"Login successful", user:{
     }
 }
 
-const logoutUser = async (req, res)=>{
+export const logoutUser = async (req, res)=>{
  try{
     const {email } = req.body
-    const user = User.findOne({
-        email 
-    })
+    const user = await logoutUserService(email)
 
     if(!user) {
         return res.status(404).json({
@@ -82,8 +80,3 @@ const logoutUser = async (req, res)=>{
  }
 }
 
-export{
-    registerUser,
-    loginUser,
-    logoutUser
-}

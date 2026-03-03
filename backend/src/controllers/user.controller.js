@@ -6,13 +6,6 @@ export const registerUser = async (req, res)=>{
         // destructure the request body
 const { username, email, password} = req.body;
 
-// validate the input
- if(!username || !email || !password){
-    return res.status(400).json({message:"All fields are required"})
- }
-
-  
-
 //   create user
   const user = await registerUserService(
     username,
@@ -20,8 +13,9 @@ const { username, email, password} = req.body;
     password, 
   )
   if (!user) {
-      return res.status(400).json({ message: "Username or email already exists" });
-    }
+            return res.status(400).json({ message: "Username or email already exists" });
+        }
+ 
 // status code in here
   res.status(201).json({message:"User registered successfully", user})
     }
@@ -38,14 +32,14 @@ export const loginUser = async (req, res)=>{
         // destructure the request body
 const { email, password} = req.body;
 const user = await loginUserService(email)
-if(!user) {
-    return res.status(400).json({message:"User is not found"})
-}
-// compare   the password
-const isMatched = await user.comparePassword(password)
-if(!isMatched){
-    return res.status(400).json({message:"Invalid credentials"})
-}
+if (!user) {
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        const isMatched = await user.comparePassword(password);
+        if (!isMatched) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
 res.status(200).json({message:"Login successful", user:{
     id:user._id,
     username:user.username,
@@ -60,14 +54,12 @@ res.status(200).json({message:"Login successful", user:{
 
 export const logoutUser = async (req, res)=>{
  try{
-    const {email } = req.body
-    const user = await logoutUserService(email)
+    const { email } = req.body;
+        const user = await logoutUserService(email.toLowerCase());
 
-    if(!user) {
-        return res.status(404).json({
-            message:"User not found"
-        })
-    }
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
     res.status(200).json({
         message:"Logout successfully"
     })
